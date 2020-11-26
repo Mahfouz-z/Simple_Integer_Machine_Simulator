@@ -1,10 +1,10 @@
-#include "mul_inst.h"
+#include "../include/le_inst.h"
 #include <stdexcept>
 #include <string>
 
 using namespace std;
 
-bool mul_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool le_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
 {
     string arg1, arg2, out;
     string * parsedA, * parsedB;
@@ -23,7 +23,7 @@ bool mul_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         }
         catch(const std::exception& e)
         {
-            throw(std::runtime_error("Invalid Argument in mul instruction"));
+            throw(std::runtime_error("Invalid Argument in le instruction"));
         } 
         val1 = dataMem->get(val1);
     }
@@ -35,7 +35,7 @@ bool mul_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         }
         catch(const std::exception& e)
         {
-            throw(std::runtime_error("Invalid Argument in mul instruction"));
+            throw(std::runtime_error("Invalid Argument in le instruction"));
         } 
     }
 
@@ -48,7 +48,7 @@ bool mul_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         }
         catch(const std::exception& e)
         {
-            throw(std::runtime_error("Invalid Argument in mul instruction"));
+            throw(std::runtime_error("Invalid Argument in le instruction"));
         } 
         val2 = dataMem->get(val2);
     }
@@ -60,13 +60,13 @@ bool mul_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         }
         catch(const std::exception& e)
         {
-            throw(std::runtime_error("Invalid Argument in mul instruction"));
+            throw(std::runtime_error("Invalid Argument in le instruction"));
         } 
     }
     
     if(out.find("$") == string::npos)
     {
-        throw(std::runtime_error("Invalid Argument in mul instruction"));
+        throw(std::runtime_error("Invalid Argument in le instruction"));
     }
 
     int write_mem_index;
@@ -76,10 +76,10 @@ bool mul_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
     }
     catch(const std::exception& e)
     {
-        throw(std::runtime_error("Invalid Argument in mul instruction"));
+        throw(std::runtime_error("Invalid Argument in le instruction"));
     }
     
-    dataMem->set(write_mem_index, val1 * val2);
+    dataMem->set(write_mem_index, val1 <= val2);
 
     delete [] parsedA;
     delete [] parsedB;

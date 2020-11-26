@@ -1,4 +1,4 @@
-#include "write_inst.h"
+#include "../include/write_inst.h"
 #include <stdexcept>
 #include <string>
 #include <iostream>

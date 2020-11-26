@@ -1,5 +1,5 @@
 #include <iostream>
-#include "memory.h"
+#include "../include/memory.h"
 #include <stdexcept>
 
 using namespace std;

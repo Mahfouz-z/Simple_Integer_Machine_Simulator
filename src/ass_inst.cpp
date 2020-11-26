@@ -1,10 +1,10 @@
-#include "neg_inst.h"
+#include "../include/ass_inst.h"
 #include <stdexcept>
 #include <string>
 
 using namespace std;
 
-bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool ass_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
 {
     string arg1, out;
     string * parsedA;
@@ -21,7 +21,7 @@ bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         }
         catch(const std::exception& e)
         {
-            throw(std::runtime_error("Invalid Argument in neg instruction"));
+            throw(std::runtime_error("Invalid Argument in ass instruction"));
         } 
         val1 = dataMem->get(val1);
     }
@@ -33,14 +33,14 @@ bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         }
         catch(const std::exception& e)
         {
-            throw(std::runtime_error("Invalid Argument in neg instruction"));
+            throw(std::runtime_error("Invalid Argument in ass instruction"));
         } 
     }
 
     
     if(out.find("$") == string::npos)
     {
-        throw(std::runtime_error("Invalid Argument in neg instruction"));
+        throw(std::runtime_error("Invalid Argument in ass instruction"));
     }
     int write_mem_index;
     try
@@ -49,10 +49,10 @@ bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
     }
     catch(const std::exception& e)
     {
-        throw(std::runtime_error("Invalid Argument in neg instruction"));
+        throw(std::runtime_error("Invalid Argument in ass instruction"));
     }
     
-    dataMem->set(write_mem_index, -1 * val1);
+    dataMem->set(write_mem_index, val1);
 
     delete [] parsedA;
     return 0;
