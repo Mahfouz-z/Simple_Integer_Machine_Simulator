@@ -11,7 +11,8 @@ bool write_inst::execute(std::string instruction, int & PC, memory <int> * dataM
 
     if(instruction.find("$") == string::npos)
     {
-        throw(std::runtime_error("Invalid Argument in write instruction"));
+        cout << instruction << endl;
+        return 0;
     }
     try
     {

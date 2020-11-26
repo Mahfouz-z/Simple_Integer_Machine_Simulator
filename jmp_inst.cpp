@@ -30,7 +30,7 @@ bool jmp_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
             throw(std::runtime_error("Invalid Argument in jmp instruction"));
         } 
     }
-
+    
     PC = go_to_pc-1;
     return 0;
 }

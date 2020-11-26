@@ -86,6 +86,7 @@ int SIM_Simulator_Driver::execute_program()
         inst_type = removeSpaces(parsed[0]);
         operands = removeSpaces(parsed[1]);
         delete [] parsed;
+        
 
         if(inst_type == "ADD")
         {
@@ -102,7 +103,7 @@ int SIM_Simulator_Driver::execute_program()
         else if(inst_type == "JMP")
         {
             jmp_inst().execute(operands, pc, &data_mem);
-            if(pc > inst_number || pc < 0)
+            if(pc > inst_number || pc < -1)
             {
                 throw(std::runtime_error("Instruction memorey address out of range"));
             }
