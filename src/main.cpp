@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
     program_path = argv[1];
     try
     {
-        D1.load_program(program_path);
+        D1.add_core(program_path);
+        D1.add_core(program_path);
         if(argc > 2)
         {
             D1.load_data_mem(argv[2]);

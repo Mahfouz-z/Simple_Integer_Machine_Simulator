@@ -5,7 +5,7 @@
 
 using namespace std;
 
-bool read_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool read_inst::execute(std::string instruction, int & PC, memory <int> * dataMem, mutex & std_stream_lock)
 {
     int index;
 
@@ -24,6 +24,8 @@ bool read_inst::execute(std::string instruction, int & PC, memory <int> * dataMe
 
     string read_val;
     int val;
+
+    std_stream_lock.lock();
     cout << "ُEnter an integer value to be written to the specified memorey address\n";
     cin >> read_val;
     try
@@ -32,8 +34,10 @@ bool read_inst::execute(std::string instruction, int & PC, memory <int> * dataMe
     }
     catch(const std::exception& e)
     {
+        std_stream_lock.unlock();
         throw(std::runtime_error("Value cannot be interperted as int"));
     }
+    std_stream_lock.unlock();
     
     dataMem -> set(index, val);
     return 0;

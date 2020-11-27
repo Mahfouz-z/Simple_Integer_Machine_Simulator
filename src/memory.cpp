@@ -58,7 +58,6 @@ bool memory<memDataType>::set(int index, memDataType data)
         throw(invalid_argument("Invalid Memorey Address"));
         return 1;
     }
-    
 }
 
 

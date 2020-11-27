@@ -5,7 +5,7 @@ template <typename memDataType>
 
 class memory
 {
-    private:
+    protected:
         memDataType * mem_arr;
         int size;
     public:

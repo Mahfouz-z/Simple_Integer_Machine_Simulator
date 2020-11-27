@@ -2,7 +2,10 @@
 #define SIM_Sim_DRV
 
 #include <iostream>
+#include <vector>
+#include <mutex>
 #include "memory.h"
+#include "sync_memory.h"
 #include "helper_functions.h"
 #include "jmp_inst.h"
 #include "jmp0_inst.h"
@@ -16,15 +19,18 @@
 
 class SIM_Simulator_Driver 
 {
-    memory  <std::string> inst_mem;
-    memory <int> data_mem;
-    int inst_number;
 
+    std::vector <memory <std::string>> inst_mem_vec;
+    static sync_memory <int> data_mem;
+    std::vector <int> inst_count_vec;
+    int load_program(std::string path, memory <std::string> & core_mem, int & inst_count);
+    static void execution_thread(memory <std::string> & core_mem, int & inst_count, int ID);
+    static std::mutex std_stream_lock;
   public:
     SIM_Simulator_Driver();
     ~SIM_Simulator_Driver();
-    int load_program(std::string path);
-    int load_data_mem(std::string path);
+    int add_core(std::string instr_mem_path);
+    static int load_data_mem(std::string path);
     int execute_program();
     void print_data_mem(int start = 0, int end = 30);
 };
