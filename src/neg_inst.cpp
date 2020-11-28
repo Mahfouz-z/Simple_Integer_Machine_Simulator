@@ -4,15 +4,17 @@
 
 using namespace std;
 
-bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool neg_inst::execute(std::string instruction, int & PC, sync_memory <int> * dataMem)
 {
     string arg1, out;
     string * parsedA;
-    parsedA = split(instruction, ",");
+    parsedA = split(instruction, ',');
     arg1 = parsedA[0];
     out = parsedA[1];
 
     int val1;
+    int mem1 = 0;
+    int index1;
     if(arg1.find("$") != string::npos)
     {
         try
@@ -23,7 +25,7 @@ bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         {
             throw(std::runtime_error("Invalid Argument in neg instruction"));
         } 
-        val1 = dataMem->get(val1);
+        mem1 = 1;
     }
     else
     {
@@ -51,8 +53,14 @@ bool neg_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
     {
         throw(std::runtime_error("Invalid Argument in neg instruction"));
     }
-    
+
+    dataMem->acquire_deadlock_protector();
+    if (mem1 == 1)
+    {
+        val1 = dataMem->get(val1);
+    }
     dataMem->set(write_mem_index, -1 * val1);
+    dataMem->release_deadlock_protector();
 
     delete [] parsedA;
     return 0;

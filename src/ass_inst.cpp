@@ -4,15 +4,16 @@
 
 using namespace std;
 
-bool ass_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool ass_inst::execute(std::string instruction, int & PC, sync_memory <int> * dataMem)
 {
     string arg1, out;
     string * parsedA;
-    parsedA = split(instruction, ",");
+    parsedA = split(instruction, ',');
     arg1 = parsedA[0];
     out = parsedA[1];
 
     int val1;
+    int mem1 = 0;
     if(arg1.find("$") != string::npos)
     {
         try
@@ -23,7 +24,8 @@ bool ass_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         {
             throw(std::runtime_error("Invalid Argument in ass instruction"));
         } 
-        val1 = dataMem->get(val1);
+        //val1 = dataMem->get(val1);
+        mem1 = 1;
     }
     else
     {
@@ -51,8 +53,16 @@ bool ass_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
     {
         throw(std::runtime_error("Invalid Argument in ass instruction"));
     }
-    
+
+
+    dataMem->acquire_deadlock_protector();
+    if(mem1)
+    {
+        val1 = dataMem->get(val1);
+    }
+
     dataMem->set(write_mem_index, val1);
+    dataMem->release_deadlock_protector();
 
     delete [] parsedA;
     return 0;

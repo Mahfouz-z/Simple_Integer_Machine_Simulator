@@ -7,17 +7,19 @@
 
 using namespace std;
 
-bool add_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool add_inst::execute(std::string instruction, int & PC, sync_memory <int> * dataMem)
 {
+
     string arg1, arg2, out;
     string * parsedA, * parsedB;
-    parsedA = split(instruction, ",");
+    parsedA = split(instruction, ',');
     arg1 = parsedA[0];
-    parsedB = split(parsedA[1], ",");
+    parsedB = split(parsedA[1], ',');
     arg2 = parsedB[0]; 
     out = parsedB[1];
 
     int val1, val2;
+    int mem1 = 0, mem2 = 0;
     if(arg1.find("$") != string::npos)
     {
         try
@@ -28,7 +30,8 @@ bool add_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         {
             throw(std::runtime_error("Invalid Argument in add instruction, in1"));
         } 
-        val1 = dataMem->get(val1);
+        mem1 = 1;
+        //val1 = dataMem->get(val1);
     }
     else
     {
@@ -53,7 +56,8 @@ bool add_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         {
             throw(std::runtime_error("Invalid Argument in add instruction, in2"));
         } 
-        val2 = dataMem->get(val2);
+        mem2 = 1;
+        //val2 = dataMem->get(val2);
     }
     else
     {
@@ -81,9 +85,22 @@ bool add_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
     {
         throw(std::runtime_error("Invalid Argument in add instruction, out"));
     }
-    
-    dataMem->set(write_mem_index, val1 + val2);
+    int index1, index2;
 
+
+    dataMem->acquire_deadlock_protector();
+    if (mem1 == 1)
+    {
+        val1 = dataMem->get(val1);
+    }
+    if (mem2 == 1)
+    {
+        val2 = dataMem->get(val2);
+    }
+
+    dataMem->set(write_mem_index, val1 + val2);
+    dataMem->release_deadlock_protector();
+    
     delete [] parsedA;
     delete [] parsedB;
     return 0;

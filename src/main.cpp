@@ -1,5 +1,3 @@
-#define DEBUG
-
 #include <iostream>
 #include "../include/SIM_Simulator_Driver.h"
 
@@ -7,24 +5,21 @@
 
 using namespace std;
 
-string program_path = "program.txt";
-string data_mem_path = "mem_values.txt";
+
 int main(int argc, char *argv[])
 {
-    if(argc < 2)
+    if(argc < 3)
     {
-        cout << "Invalid input, please add at least the Instruction Memory path\n";
+        cout << "Invalid input, please add data_mem path and at least one instruction memory path\n";
         return 0; 
     }
     SIM_Simulator_Driver D1;
-    program_path = argv[1];
     try
     {
-        D1.add_core(program_path);
-        D1.add_core(program_path);
-        if(argc > 2)
+        D1.load_data_mem(argv[1]);
+        for (int i = 2; i < argc; i++)
         {
-            D1.load_data_mem(argv[2]);
+            D1.add_core(argv[i]);
         }
         D1.execute_program();
         D1.print_data_mem();

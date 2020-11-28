@@ -5,6 +5,6 @@
 class add_inst : public instClass
 {
     public:
-        bool execute(std::string instruction, int & PC, memory <int> * dataMem);
+        bool execute(std::string instruction, int & PC, sync_memory <int> * dataMem);
 };
 #endif

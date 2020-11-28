@@ -9,12 +9,11 @@
 
 using namespace std;
 
-sync_memory <int> SIM_Simulator_Driver::data_mem = sync_memory <int> (1024);
 mutex SIM_Simulator_Driver::std_stream_lock;
 
-SIM_Simulator_Driver::SIM_Simulator_Driver()
+SIM_Simulator_Driver::SIM_Simulator_Driver():data_mem(sync_memory <int> (1000))
 {
-    
+
 }
 
 SIM_Simulator_Driver::~SIM_Simulator_Driver()
@@ -27,6 +26,11 @@ int SIM_Simulator_Driver::add_core(std::string instr_mem_path)
     memory <std::string> core_mem;
     int inst_count;
     int ret_val = SIM_Simulator_Driver::load_program(instr_mem_path, core_mem, inst_count);
+    if(core_mem.get(inst_count-1).find("HALT") == string::npos)
+    {
+        throw(runtime_error("Invalid Program, no HALT instruction used at the end of the program"));
+    }
+
     inst_mem_vec.push_back(core_mem);
     inst_count_vec.push_back(inst_count);
     return ret_val;
@@ -44,6 +48,7 @@ int SIM_Simulator_Driver::load_program(string path, memory <std::string> & core_
     int i = 0;
     while (getline(infile, line)) 
     {
+        line = removeEndls(line);
         core_mem.set(i, line);
         #ifdef DEBUG
             cout << core_mem.get(i) << endl;
@@ -51,6 +56,7 @@ int SIM_Simulator_Driver::load_program(string path, memory <std::string> & core_
         i++;
     }
     inst_count = i;
+    infile.close();
     return 0;
 }
 
@@ -72,13 +78,15 @@ int SIM_Simulator_Driver::load_data_mem(string path)
         {
             string * parsed;
             line = removeSpaces(line);
-            parsed = split(line, ",");
+            parsed = split(line, ',');
             index = stoi(parsed[0]);
+            //cout << parsed[1] << endl;
             val = stoi(parsed[1]);
             data_mem.set(index, val);
         }
         catch(const std::exception& e)
         {
+            cout << e.what() << endl;
             throw(std::runtime_error("specified data memorey is invalid"));
         }
     }
@@ -86,18 +94,22 @@ int SIM_Simulator_Driver::load_data_mem(string path)
 }
 
 
-void SIM_Simulator_Driver::execution_thread(memory <std::string> & core_mem, int & inst_count, int ID)
+void SIM_Simulator_Driver::execution_thread(memory <std::string> & core_mem, int & inst_count, sync_memory <int> & data_mem, int ID)
 {
     try
     {
-        for (int pc = 0; pc < inst_count; pc++)
+         for (int pc = 0; pc < inst_count; pc++)
             {
                 string current_inst, inst_type, operands;
                 string * parsed;
                 current_inst = core_mem.get(pc);
-                parsed = split(current_inst, " ");
+                
+                parsed = split(current_inst, ' ');
+                
                 inst_type = removeSpaces(parsed[0]);
+                
                 operands = removeSpaces(parsed[1]);
+                //cout << inst_type<< " " << operands << endl;
                 delete [] parsed;
                 
                 if(inst_type == "ADD")
@@ -142,19 +154,23 @@ void SIM_Simulator_Driver::execution_thread(memory <std::string> & core_mem, int
                 }
                 else if(inst_type == "HALT")
                 {
-                    cout << "HALT FOUND, APP RUNNING IS DONE" << endl;
+                    std_stream_lock.lock();
+                    cout << "HALT FOUND, APP RUNNING IS DONE ON CORE: " << ID << endl;
+                    std_stream_lock.unlock();
                     break;
                 }
                 else
                 {
-                    throw(std::runtime_error("Unsupported Instruction"));
+                    throw(std::runtime_error("Unsupported Instruction" + inst_type));
                 }
             }
     }
     catch(const std::exception& e)
     {
+        std_stream_lock.lock();
         std::cerr << "Execution had thrown an exception in core with Index: " << ID << endl;
         std::cerr << "       " << e.what() << '\n';
+        std_stream_lock.unlock();
     }
     
 }
@@ -162,13 +178,20 @@ void SIM_Simulator_Driver::execution_thread(memory <std::string> & core_mem, int
 int SIM_Simulator_Driver::execute_program()
 {
     vector <thread> thread_holder;
-    for(int i = 0; i < inst_mem_vec.size(); i++)
+    try
     {
-        thread_holder.push_back(thread(execution_thread, std::ref(inst_mem_vec[i]), std::ref(inst_count_vec[i]), i));
+        for(int i = 0; i < inst_mem_vec.size(); i++)
+        {
+            thread_holder.push_back(thread(execution_thread, std::ref(inst_mem_vec[i]), std::ref(inst_count_vec[i]), std::ref(data_mem), i));
+        }
+        for(int i = 0; i < inst_mem_vec.size(); i++)
+        {
+            thread_holder[i].join();
+        }
     }
-    for(int i = 0; i < inst_mem_vec.size(); i++)
+    catch(const std::exception& e)
     {
-        thread_holder[i].join();
+        throw;
     }
     return 0;
 }

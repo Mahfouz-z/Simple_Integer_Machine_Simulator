@@ -4,9 +4,10 @@
 
 using namespace std;
 
-bool jmp_inst::execute(std::string instruction, int & PC, memory <int> * dataMem)
+bool jmp_inst::execute(std::string instruction, int & PC, sync_memory <int> * dataMem)
 {
     int go_to_pc;
+    int mem = 0;
     if(instruction.find("$") != string::npos)
     {
         try
@@ -17,7 +18,8 @@ bool jmp_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         {
             throw(std::runtime_error("Invalid Argument in jmp instruction"));
         } 
-        go_to_pc = dataMem->get(go_to_pc);
+        mem = 1;
+        
     }
     else
     {
@@ -31,6 +33,17 @@ bool jmp_inst::execute(std::string instruction, int & PC, memory <int> * dataMem
         } 
     }
     
+
+    dataMem->acquire_deadlock_protector();
+    if(mem)
+    {
+        go_to_pc = dataMem->get(go_to_pc);
+    }
+    dataMem->release_deadlock_protector();
+    
     PC = go_to_pc-1;
+    
+
+    
     return 0;
 }

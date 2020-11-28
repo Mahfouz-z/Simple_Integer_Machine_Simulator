@@ -17,7 +17,7 @@ memory<memDataType>::memory(int s):size(s)
     else
     {
         mem_arr = nullptr;
-        throw(invalid_argument("Invalid Memorey Size"));
+        throw(invalid_argument("Invalid Memorey Size in memory intializer"));
     }
 }
 
@@ -55,7 +55,7 @@ bool memory<memDataType>::set(int index, memDataType data)
     }   
     else
     {
-        throw(invalid_argument("Invalid Memorey Address"));
+        throw(invalid_argument("Invalid Memorey Address in memory setter"));
         return 1;
     }
 }
@@ -71,7 +71,7 @@ memDataType memory<memDataType>::get(int index)
     }   
     else
     {
-        throw(invalid_argument("Invalid Memorey Address"));
+        throw(invalid_argument("Invalid Memorey Address in memory getter"));
     }
 }
 
